@@ -35,11 +35,12 @@
     const canvas=document.querySelector("#unity-canvas");
     const loading=document.querySelector("#loading");
     const errorBox=document.querySelector("#error");
+    const buildVersion='2026-10-30-mixamo-course';
     const config={
       arguments:[],
-      dataUrl:"Build/WebGL.data",
-      frameworkUrl:"Build/WebGL.framework.js",
-      codeUrl:"Build/WebGL.wasm",
+      dataUrl:"Build/WebGL.data?v="+buildVersion,
+      frameworkUrl:"Build/WebGL.framework.js?v="+buildVersion,
+      codeUrl:"Build/WebGL.wasm?v="+buildVersion,
       streamingAssetsUrl:"StreamingAssets",
       companyName:"Kikuta",productName:"GAPLINE",productVersion:"1.0",
       devicePixelRatio:Math.min(window.devicePixelRatio||1,1.5),
@@ -57,7 +58,7 @@
     canvas.addEventListener("contextmenu",e=>e.preventDefault());
     canvas.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});
     const script=document.createElement("script");
-    script.src="Build/WebGL.loader.js";
+    script.src="Build/WebGL.loader.js?v="+buildVersion;
     script.onload=()=>createUnityInstance(canvas,config,progress=>{
       document.querySelector("#progress").style.width=(progress*100)+"%";
     }).then(instance=>{
