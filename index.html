@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#111a27">
+  <title>GAPLINE — Rooftop Sprint</title>
+  <link rel="icon" href="data:,">
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111a27;color:#fff;font-family:Arial,Helvetica,sans-serif}
+    body{display:flex;align-items:center;justify-content:center}
+    #frame{position:relative;width:min(100vw,540px);height:100dvh;min-height:400px;background:linear-gradient(#40556e,#8f9499);overflow:hidden}
+    #unity-canvas{display:block;width:100%;height:100%;touch-action:none;outline:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+    #loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;background:linear-gradient(#4b657d,#c0a9a2);pointer-events:none}
+    #loading strong{font-size:31px;letter-spacing:.19em}
+    #loading span{font-size:11px;letter-spacing:.23em;opacity:.9}
+    #track{width:min(65%,240px);height:3px;background:#ffffff55}
+    #progress{height:100%;width:0;background:#fff;transition:width .15s}
+    #error{display:none;position:absolute;left:16px;right:16px;top:40%;padding:20px;background:#1b2531;line-height:1.5}
+    @media (min-width:600px){#frame{height:min(100dvh,960px);box-shadow:0 10px 60px #0009}}
+  </style>
+</head>
+<body>
+  <main id="frame">
+    <canvas id="unity-canvas" tabindex="0"></canvas>
+    <section id="loading">
+      <strong>GAPLINE</strong>
+      <span>PREPARING THE SKYLINE</span>
+      <div id="track"><div id="progress"></div></div>
+    </section>
+    <div id="error" role="alert"></div>
+  </main>
+  <script>
+    const canvas=document.querySelector("#unity-canvas");
+    const loading=document.querySelector("#loading");
+    const errorBox=document.querySelector("#error");
+    const config={
+      arguments:[],
+      dataUrl:"Build/WebGL.data",
+      frameworkUrl:"Build/WebGL.framework.js",
+      codeUrl:"Build/WebGL.wasm",
+      streamingAssetsUrl:"StreamingAssets",
+      companyName:"Kikuta",productName:"GAPLINE",productVersion:"1.0",
+      devicePixelRatio:Math.min(window.devicePixelRatio||1,1.5),
+      showBanner:(message,type)=>{
+        if(type==="error"){errorBox.textContent=message;errorBox.style.display="block";}
+        else console.warn(message);
+      }
+    };
+    function fail(message){
+      loading.style.display="none";
+      errorBox.textContent="Unable to start GAPLINE: "+message;
+      errorBox.style.display="block";
+      console.error(message);
+    }
+    canvas.addEventListener("contextmenu",e=>e.preventDefault());
+    canvas.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});
+    const script=document.createElement("script");
+    script.src="Build/WebGL.loader.js";
+    script.onload=()=>createUnityInstance(canvas,config,progress=>{
+      document.querySelector("#progress").style.width=(progress*100)+"%";
+    }).then(instance=>{
+      loading.style.display="none";
+      window.gaplineUnity=instance;
+    }).catch(fail);
+    script.onerror=()=>fail("Failed to load Unity WebGL loader");
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
